@@ -121,6 +121,3 @@ If you paste the exact console debug output (the `code` and `message` printed by
 
 If you get an error during login, copy the debug output printed in the console and open an issue or paste it here; I'll help diagnose it.
 
----
-
-Generated on 2025-11-13. This README focuses on setup and diagnosing the auth flow; update it when the project changes or when secrets are removed from the `.env` file.
