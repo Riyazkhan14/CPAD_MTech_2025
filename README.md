@@ -51,7 +51,7 @@ This project expects a `.env` file in the project root with these keys:
 - PARSE_CLIENT_KEY (optional depending on your Back4App settings)
 - PARSE_SERVER_URL
 
-An example `.env` is already present in the repo root. If you share the project, remove credentials and replace with placeholders.
+An example `.env` is already present in the repo root. I have shared the project, so removing credentials and replace with placeholders. I will Share this file separately with other Projects Files.
 
 3. Run the app
 
