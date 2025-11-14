@@ -14,12 +14,40 @@ class _LoginPageState extends State<LoginPage> {
   final password = TextEditingController();
   bool loading = false;
 
-  void showRootSnack(String msg) {
-    Future.delayed(const Duration(milliseconds: 60), () {
-      ScaffoldMessenger.of(
-        Navigator.of(context).overlay!.context,
-      ).showSnackBar(SnackBar(content: Text(msg)));
-    });
+  void showAlert(String msg) {
+    debugPrint('Alert: $msg'); // Log to console for debugging
+
+    if (!mounted) {
+      debugPrint('Widget not mounted, alert not shown');
+      return;
+    }
+
+    // Try to show SnackBar with better error handling
+    try {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(msg),
+          duration: const Duration(seconds: 3),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } catch (e) {
+      debugPrint('Failed to show SnackBar: $e');
+      // Fallback: show dialog
+      showCupertinoDialog(
+        context: context,
+        builder: (ctx) => CupertinoAlertDialog(
+          title: const Text("Alert"),
+          content: Text(msg),
+          actions: [
+            CupertinoDialogAction(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text("OK"),
+            ),
+          ],
+        ),
+      );
+    }
   }
 
   Future<void> login() async {
@@ -34,10 +62,10 @@ class _LoginPageState extends State<LoginPage> {
         if (!mounted) return;
         Navigator.pushReplacementNamed(context, '/tasks');
       } else {
-        showRootSnack(res.error?.message ?? "Invalid email/password");
+        showAlert(res.error?.message ?? "Invalid email/password");
       }
     } catch (e) {
-      showRootSnack("Error: $e");
+      showAlert("Error: $e");
     } finally {
       if (mounted) setState(() => loading = false);
     }
@@ -54,12 +82,12 @@ class _LoginPageState extends State<LoginPage> {
       final res = await user.signUp();
 
       if (res.success) {
-        showRootSnack("Account created. Now login.");
+        showAlert("Account created. Now login.");
       } else {
-        showRootSnack(res.error?.message ?? "Sign up failed");
+        showAlert(res.error?.message ?? "Sign up failed");
       }
     } catch (e) {
-      showRootSnack("Error: $e");
+      showAlert("Error: $e");
     } finally {
       if (mounted) setState(() => loading = false);
     }
@@ -69,19 +97,22 @@ class _LoginPageState extends State<LoginPage> {
     setState(() => loading = true);
     try {
       if (email.text.trim().isEmpty) {
-        showRootSnack("Enter your email first.");
+        showAlert("Enter your email first.");
         return;
       }
-      final res = await ParseUser(null, null, email.text.trim())
-          .requestPasswordReset();
+      final res = await ParseUser(
+        null,
+        null,
+        email.text.trim(),
+      ).requestPasswordReset();
 
       if (res.success) {
-        showRootSnack("Password reset link sent!");
+        showAlert("Password reset link sent!");
       } else {
-        showRootSnack(res.error?.message ?? "Failed");
+        showAlert(res.error?.message ?? "Failed");
       }
     } catch (e) {
-      showRootSnack("Error: $e");
+      showAlert("Error: $e");
     } finally {
       if (mounted) setState(() => loading = false);
     }
@@ -97,17 +128,18 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
-      navigationBar: const CupertinoNavigationBar(
-        middle: Text("Login"),
-      ),
+      navigationBar: const CupertinoNavigationBar(middle: Text("Login")),
       child: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(CupertinoIcons.lock_shield,
-                  size: 64, color: CupertinoColors.activeBlue),
+              const Icon(
+                CupertinoIcons.lock_shield,
+                size: 64,
+                color: CupertinoColors.activeBlue,
+              ),
               const SizedBox(height: 20),
               CupertinoTextField(
                 controller: email,
